@@ -76,3 +76,5 @@ DerivedDataCache/*
 
 # All assets
 Content/
+
+.ap/
