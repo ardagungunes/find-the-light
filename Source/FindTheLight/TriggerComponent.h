@@ -40,4 +40,6 @@ public:
 	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UPROPERTY(EditAnywhere) bool isPressurePlate = false;
+
+	UPROPERTY(VisibleAnywhere) int count;
 };

@@ -25,6 +25,8 @@ void UMover::BeginPlay()
 	
 	startLocation = myOwner->GetActorLocation();
 
+	setShouldMove(false);
+
 }
 
 
@@ -36,17 +38,8 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 	FVector currentLocation = GetOwner()->GetActorLocation();
 	float speed = moveOffSet.Length() / moveTime;
 
-	if (shouldMove) {
-		
-		targetLocation = startLocation + moveOffSet;
-
-	}
-	else {
-
-		targetLocation = startLocation;
-	}
-
 	
+
 	if(!(currentLocation.Equals(targetLocation))) {
 
 		FVector newLocation = FMath::VInterpConstantTo(currentLocation, targetLocation, DeltaTime, speed);
@@ -58,5 +51,25 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 	
 	
 	// ...
+}
+
+bool UMover::getShouldMove()
+{
+	return shouldMove;
+}
+
+void UMover::setShouldMove(bool newValue)
+{
+	shouldMove = newValue;
+
+	if (shouldMove) {
+
+		targetLocation = startLocation + moveOffSet;
+
+	}
+	else {
+
+		targetLocation = startLocation;
+	}
 }
 

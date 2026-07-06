@@ -12,6 +12,8 @@ void UTriggerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	count = 0;
+
 	if (moverActor) {
 		
 		mover = moverActor->FindComponentByClass<UMover>();
@@ -45,10 +47,15 @@ void UTriggerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UTriggerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
-	bool hasTag = OtherActor->ActorHasTag("PressurePlateActivator");
+	
+	if (mover && OtherActor && OtherActor->ActorHasTag("PressurePlateActivator")) {
 
-	if (mover && hasTag) {
-		mover->shouldMove = true;
+		count += 1;
+
+		if(count > 0) { 
+			mover->setShouldMove(true); 
+		}
+		
 	}
 	
 }
@@ -56,10 +63,15 @@ void UTriggerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 void UTriggerComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 
-	bool hasTag = OtherActor->ActorHasTag("PressurePlateActivator");
 
-	if (mover && hasTag) {
-		mover->shouldMove = false;
+	if (mover && OtherActor && OtherActor->ActorHasTag("PressurePlateActivator")) {
+
+		count -= 1;
+
+		if (count == 0) {
+			mover->setShouldMove(false);
+		}
+		
 	}
 	
 }
