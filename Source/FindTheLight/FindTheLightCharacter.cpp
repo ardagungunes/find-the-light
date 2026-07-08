@@ -59,6 +59,9 @@ void AFindTheLightCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		// Looking/Aiming
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AFindTheLightCharacter::LookInput);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AFindTheLightCharacter::LookInput);
+
+		// Interacting
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AFindTheLightCharacter::Interact);
 	}
 	else
 	{
@@ -117,4 +120,9 @@ void AFindTheLightCharacter::DoJumpEnd()
 {
 	// pass StopJumping to the character
 	StopJumping();
+}
+
+void AFindTheLightCharacter::Interact()
+{
+	UE_LOG(LogTemp, Display, TEXT("Left Mouse Button is pressed"));
 }
