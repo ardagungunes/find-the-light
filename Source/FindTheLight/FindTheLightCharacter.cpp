@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DrawDebugHelpers.h"
 #include "FindTheLight.h"
 
 AFindTheLightCharacter::AFindTheLightCharacter()
@@ -124,5 +125,42 @@ void AFindTheLightCharacter::DoJumpEnd()
 
 void AFindTheLightCharacter::Interact()
 {
-	UE_LOG(LogTemp, Display, TEXT("Left Mouse Button is pressed"));
+	FVector start = FirstPersonCameraComponent->GetComponentLocation();
+	FVector end = start + (maxDistanceLookUp * FirstPersonCameraComponent->GetForwardVector());
+
+	DrawDebugLine(
+		GetWorld(),
+		start,
+		end,
+		FColor::Blue,
+		false,      // Persistent lines?
+		5.0f,       // Lifetime in seconds
+		0,          // Depth priority
+		2.0f        // Thickness
+	);
+
+	FCollisionShape sphere = FCollisionShape::MakeSphere(interactionSphereRadius);
+
+	DrawDebugSphere(GetWorld(), start, interactionSphereRadius, 20, FColor::Blue, false, 5.0f, 0, 1.0f);
+	DrawDebugSphere(GetWorld(), end, interactionSphereRadius, 20, FColor::Blue, false, 5.0f, 0, 1.0f);
+
+	FHitResult interactResult;
+	bool hasHit = GetWorld()->SweepSingleByChannel(
+		interactResult, 
+		start, end, 
+		FQuat::Identity, 
+		ECC_GameTraceChannel2, 
+		sphere);
+
+	if (hasHit) {
+
+		AActor* hitActor = interactResult.GetActor();
+		
+		UE_LOG(LogTemp, Display, TEXT("Actor name is: %s"), *hitActor->GetName());
+
+	}
+
+	else {
+		UE_LOG(LogTemp, Display, TEXT("No actor hit."));
+	}
 }

@@ -98,5 +98,11 @@ public:
 	/** Returns first person camera component **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	UPROPERTY(EditAnywhere)
+	float maxDistanceLookUp = 300.0f;
+
+	UPROPERTY(EditAnywhere)
+	float interactionSphereRadius = 30.0f;
+
 };
 
