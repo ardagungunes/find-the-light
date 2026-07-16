@@ -9,6 +9,8 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
+#include "CollectableItem.h"
+#include "Lock.h"
 #include "FindTheLight.h"
 
 AFindTheLightCharacter::AFindTheLightCharacter()
@@ -156,7 +158,38 @@ void AFindTheLightCharacter::Interact()
 
 		AActor* hitActor = interactResult.GetActor();
 		
-		UE_LOG(LogTemp, Display, TEXT("Actor name is: %s"), *hitActor->GetName());
+		if (hitActor->ActorHasTag("CollectableItem")) {
+
+			ACollectableItem* collectableItem = Cast<ACollectableItem>(hitActor);
+
+			if (collectableItem) {
+				inventory.Add(collectableItem->itemName);
+				collectableItem->Destroy();
+			}
+
+		} 
+		
+		else if (hitActor->ActorHasTag("Lock")) {
+
+			ALock* lockActor = Cast<ALock>(hitActor);
+
+			if (lockActor) {
+				if (!lockActor->getIsKeyPlaced() && inventory.RemoveSingle(lockActor->keyItemName)) {
+					lockActor->setIsKeyPlaced(true);
+				}
+				else if (lockActor->getIsKeyPlaced()) {
+					inventory.Add(lockActor->keyItemName);
+					lockActor->setIsKeyPlaced(false);
+				}
+				
+				
+			}
+
+		}
+
+		else {
+			UE_LOG(LogTemp, Display, TEXT("Normal Actor"));
+		}
 
 	}
 
@@ -164,3 +197,5 @@ void AFindTheLightCharacter::Interact()
 		UE_LOG(LogTemp, Display, TEXT("No actor hit."));
 	}
 }
+
+
