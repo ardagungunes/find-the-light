@@ -1,74 +1,113 @@
-# Find The Light
+# Find the Light
 
-A personal Unreal Engine 5 project created to learn gameplay programming, component-based design, and C++ development in Unreal Engine.
+Find the Light is an early-stage first-person dungeon escape prototype built with Unreal Engine 5 and C++. The project explores reusable gameplay systems for environmental puzzles, including collectible keys, interactive locks, pressure plates, and smoothly moving doors or platforms.
 
-The project is currently in an early prototype stage. My long-term goal is to develop a dungeon escape game featuring environmental puzzles, traps, locked doors, and exploration mechanics. At this stage, I am primarily experimenting with gameplay systems and Unreal Engine architecture before implementing the complete game logic.
+The long-term goal is to turn these systems into an atmospheric escape game centered on exploration, traps, and puzzle-driven progression.
 
-## Current Focus
+## Project Status
 
-The project serves as a playground for testing and learning:
+This project is currently a learning prototype, not a finished or packaged game. Its main purpose is to practice Unreal Engine gameplay programming, component-based design, debugging, and C++/Blueprint integration.
 
-* Unreal Engine C++ workflows
-* Component-based gameplay programming
-* Actor movement systems
-* Gameplay prototyping
-* Unreal Engine architecture and debugging
+## Implemented Features
 
-## Custom Mover Component
+- First-person movement, camera control, and jumping
+- Enhanced Input-based interaction system
+- Sphere-sweep interaction detection with configurable range and radius
+- Collectible items identified by editable item names
+- Lightweight player inventory for collected items
+- Locks that accept and return matching key items
+- Reusable moving-actor component for doors, platforms, and similar objects
+- Pressure plates that activate moving actors while tagged objects overlap them
+- Editor-exposed gameplay settings through `UPROPERTY`
+- Debug lines and spheres for visualizing interaction traces
 
-One of the systems I implemented is a reusable `Mover` Actor Component written in C++.
+## Core Gameplay Systems
 
-### Features
+### Interaction and Inventory
 
-* Attachable to any Actor
-* Configurable movement offset
-* Adjustable movement duration
-* Smooth interpolation between positions
-* Toggle-based movement behavior
-* Editor-exposed parameters using `UPROPERTY`
+The first-person character performs a sphere sweep from the camera when the interact action is triggered. If the trace finds a collectible, the item's name is added to the character's inventory and the world actor is removed.
 
-### Implementation Details
+When the player interacts with a lock, the game checks the inventory for the required item name. A matching item can be placed into the lock to activate its connected mover and can later be removed and returned to the inventory.
 
-The component:
+### Mover Component
 
-* Stores the Actor's initial position during `BeginPlay()`.
-* Calculates a target position based on a configurable movement offset.
-* Uses `FMath::VInterpConstantTo()` to move the Actor smoothly between locations.
-* Supports activating and deactivating movement through a boolean flag.
-* Updates movement every frame through Unreal Engine's component tick system.
+`UMover` is a reusable actor component that moves its owning actor between an initial position and a configurable target offset.
 
-### Concepts Practiced
+It supports:
 
-Through this implementation I gained experience with:
+- An editor-configurable movement offset
+- An adjustable movement duration
+- Frame-rate-independent movement using delta time
+- Constant-speed interpolation with `FMath::VInterpConstantTo`
+- Reversible movement through a simple active/inactive state
 
-* Custom Actor Components
-* Unreal Engine Tick System
-* Delta Time based movement
-* Actor ownership (`GetOwner()`)
-* FVector operations
-* Interpolation functions
-* Exposing variables to the Unreal Editor
-* Component reusability
+The component can be attached to doors, platforms, walls, or other actors that need puzzle-controlled movement.
 
-## Planned Features
+### Trigger and Pressure Plate Component
 
-The project is still under active development. Planned gameplay systems include:
+`UTriggerComponent` extends Unreal's box component and can act as a pressure plate. It watches for overlapping actors tagged `PressurePlateActivator` and controls a `UMover` on a referenced actor.
 
-* Dungeon exploration
-* Locked doors and keys
-* Environmental traps
-* Puzzle mechanics
-* Interactive objects
-* Escape-room style progression
-* Additional reusable gameplay components
+An overlap counter allows multiple valid actors to occupy the trigger without closing or resetting the connected mover until the last activator leaves.
 
-## Technologies
+### Locks and Keys
 
-* Unreal Engine 5
-* C++
-* Visual Studio
-* Git
+`ALock` connects the interaction, inventory, and movement systems. Each lock has an editable required key name, a mesh representing the inserted item, and a trigger component linked to the actor that should move.
 
-## Purpose
+## Project Structure
 
-This project is part of my ongoing effort to strengthen my Unreal Engine and C++ skills through practical game development. Rather than focusing on a finished product, the current goal is to experiment with gameplay systems, learn Unreal Engine architecture, and build a solid foundation for future related projects.
+```text
+FindTheLight/
+├── Config/                         # Engine, game, collision, and input settings
+├── Source/
+│   ├── FindTheLight/               # Main runtime module
+│   │   ├── FindTheLightCharacter.* # First-person controls and interaction
+│   │   ├── CollectableItem.*       # Collectible item actor
+│   │   ├── Lock.*                  # Key-operated lock actor
+│   │   ├── Mover.*                 # Reusable moving-actor component
+│   │   ├── TriggerComponent.*      # Pressure plate and overlap logic
+│   │   ├── Variant_Horror/         # Horror template character and UI code
+│   │   └── Variant_Shooter/        # Shooter template, weapons, AI, and UI code
+│   └── FindTheLight.Target.cs
+└── FindTheLight.uproject
+```
+
+## Requirements
+
+- Unreal Engine 5.7
+- Visual Studio 2022 with the **Game development with C++** workload
+- Windows 10 or 11
+
+## Opening the Project
+
+1. Clone or download the repository.
+2. Make sure the project's `Content/` directory is present. The source-only archive does not include Unreal assets, maps, Blueprints, or Enhanced Input assets.
+3. Right-click `FindTheLight.uproject` and select **Generate Visual Studio project files**.
+4. Open the generated solution in Visual Studio 2022.
+5. Select the **Development Editor** configuration and **Win64** platform, then build the `FindTheLight` target.
+6. Open `FindTheLight.uproject` in Unreal Engine 5.7.
+7. Allow Unreal Engine to rebuild project modules if prompted.
+
+## Editor Setup Notes
+
+The gameplay code expects several references and conventions to be configured in Unreal Editor:
+
+- Assign the character's Enhanced Input actions, including the interact action.
+- Set collectible actors' `itemName` values.
+- Set each lock's `keyItemName` to the exact matching collectible name.
+- Assign a mover actor to the relevant trigger component.
+- Add a `UMover` component to every actor controlled by a lock or pressure plate.
+- Enable `isPressurePlate` for triggers that should react to overlaps.
+- Tag valid pressure-plate objects with `PressurePlateActivator`.
+- Ensure interactable collision blocks the custom `Interact` trace channel.
+
+## Technologies and Concepts
+
+- Unreal Engine 5.7
+- C++
+- Enhanced Input
+- Actor and scene components
+- Collision channels and sphere sweeps
+- Overlap events and actor tags
+- Delta-time-based interpolation
+- C++ and Blueprint integration
+- StateTree and Unreal AI modules
